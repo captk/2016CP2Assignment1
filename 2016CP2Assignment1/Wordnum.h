@@ -13,6 +13,8 @@
 #include <istream>
 #include <ostream>
 
+using namespace std;
+
 /**
  * A class to read and write numbers in word form
  */
@@ -58,7 +60,9 @@ private:
      * Reads and writes number word text
      */
     static std::string write_number (int n);
+    static int getTriad(string *, int, int);
     static int read_number (std::string n);
+    static std::string triadToString(int n);
 
     int value_;
 };

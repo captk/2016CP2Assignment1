@@ -32,7 +32,7 @@ using namespace std;
  * number will contain "forty_two"
  */
 
-string join (string* first, string* last, char separator) {
+string join(string* first, string* last, char separator) {
     ostringstream output;
     if (first < last) {
         output << *first++;
@@ -62,7 +62,7 @@ string join (string* first, string* last, char separator) {
  * word will point to words[2]    
  */
 
-string* split (string text, string* first, char separator) {
+string* split(string text, string* first, char separator) {
     istringstream input(text);
     string token;
     while (getline(input, token, separator)) {
@@ -79,11 +79,11 @@ string* split (string text, string* first, char separator) {
  * IO operators
  */
 
-ostream& operator << (ostream& os, const Wordnum& n) {
+ostream& operator<<(ostream& os, const Wordnum& n) {
     return os << Wordnum::write_number(n.value_);
 }
 
-istream& operator >> (istream& is, Wordnum& n) {
+istream& operator>>(istream& is, Wordnum& n) {
     string text;
     if (is >> text) {
         n.value_ = Wordnum::read_number(text);
@@ -96,7 +96,13 @@ istream& operator >> (istream& is, Wordnum& n) {
  */
 
 string units[] = {
-    "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
+};
+string teens[] = {
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"
+};
+string decades[] = {
+    "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"
 };
 
 /**
@@ -106,8 +112,26 @@ string units[] = {
  * returns the text for the number, with '_' between words
  */
 
-string Wordnum::write_number (int n) {
-    return units[n % 10];
+//clean here
+string Wordnum::write_number(int n) {
+
+    string words[10];
+    if (n < 10) {
+        return units[n];
+    } else if (n > 10 && n < 20) {
+        return teens[n % 10 - 1];
+    } else if (n == 10) {
+        return decades[0];
+    } else {
+        if (n % 10 != 0) {
+            words[0] = decades[(n / 10) - 1];
+            words[1] = units[n % 10];
+            return join(words + 0, words + 2, '_');
+        }
+        return decades[n / 10 - 1];
+    }
+
+
 }
 
 /**
@@ -117,11 +141,38 @@ string Wordnum::write_number (int n) {
  * returns the value of the number
  */
 
-int Wordnum::read_number (string n) {
-    for (int i = 0; i < 10; ++i) {
-        if (n == units[i]) {
-            return i;
-        }
+int Wordnum::read_number(string n) {
+    //reads input n string and converts each element to lower case
+    int total = 0;
+    for (int i = 0; i < n.length(); i++) {
+        n[i] = tolower(n[i]);
     }
-    return 0;
+    string words[10]; // enough for longest text
+
+    string* word = split(n, words, '_'); //calls split function
+    for (int i = 0; i < 10; i++) {
+
+        string currentWord = words[i];
+        for (int i = 0; i < 10; ++i) {
+            if (currentWord == units[i]) {
+                total += i;
+            }
+        }
+        for (int i = 0; i < 9; ++i) {
+
+            if (currentWord == decades[i]) {
+                total += (i + 1)*10;
+            }
+        }
+        for (int i = 0; i < 9; ++i) {
+            if (currentWord == teens[i]) {
+                total += (i + 11);
+            }
+        }
+
+
+    }
+
+    return total;
+
 }

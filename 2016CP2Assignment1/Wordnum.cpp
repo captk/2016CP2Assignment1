@@ -132,6 +132,11 @@ string Wordnum::write_number(int n) {
     string words[8] = {"", "", "", "", "", "", "", ""};
     int count = 0;
     int place = 1000000000;
+    if (n < 0){
+        words[count] = "negative";
+        n *= -1;
+        count++;
+    }
 
     for (int i = 3; i >= 0; i--) {
         //cout << "looking for a triad" << endl;
@@ -147,7 +152,8 @@ string Wordnum::write_number(int n) {
         n %= place;
         place /= 1000;
     }
-
+    if (count == 0) return "zero";
+    //cout << words[count] << " " << count << endl;
     return join(words + 0, words + count, '_');
 
 }
@@ -160,9 +166,11 @@ string Wordnum::triadToString(int n) {
     string words[3] = {"", "", ""};
     int count = 0;
 
+    //here we deal with hundreds, very annoying, very messy
     if (n / 100 > 0) {
-        //cout << "found hundreds!" << endl;
+        //cout << "found hundreds!" << endl;       
         words[0] = units[n / 100] + "_hundred";
+        if (n % 100 == 0) return words[0];
         n = n % 100;
         count++;
     }
@@ -175,10 +183,12 @@ string Wordnum::triadToString(int n) {
     } else if (n > 10 && n < 20) {
         //cout << "teens found" << endl;
         words[count] = teens[n % 10 - 1];
+        count++;
         return join(words + 0, words + count, '_');
     } else if (n == 10) {
         //cout << "only decades" << endl;
-        words[1] = decades[0];
+        words[count] = decades[0];
+        count++;
         return join(words + 0, words + count, '_');
     } else {
         //cout << "more than nineteen" << endl;

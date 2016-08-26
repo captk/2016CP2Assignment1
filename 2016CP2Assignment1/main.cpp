@@ -15,7 +15,7 @@ using namespace std;
 int main() {
     Wordnum n1, n2;
     char op;
-    cout << "Enter your expression:" << endl;
+    //cout << "Enter your expression:" << endl;
 
     while (cin >> n1 >> op >> n2) {
         switch (op) {

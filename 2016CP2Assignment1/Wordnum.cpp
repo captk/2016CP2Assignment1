@@ -18,6 +18,9 @@
 
 using namespace std;
 
+//define the boolean, british. This is required for compilation.
+bool Wordnum::british;
+
 /*
  * Convenience functions for manipulating number strings
  */
@@ -118,6 +121,28 @@ string triads[] = {
 };
 
 /**
+ * flag the class to operate in british mode
+ * 
+ * Returns:
+ * nothing
+ */
+void Wordnum::wordnumBritish() {
+    Wordnum::british = true;
+    cout << "Would you like a cup of tea?" << endl;
+}
+
+/**
+ * flag the class to operate normally
+ * 
+ * Returns:
+ * nothing
+ */
+void Wordnum::wordnumNormal() {
+    Wordnum::british = false;
+    cout << "Out of tea." << endl;
+}
+
+/**
  * Writes number word text
  *
  * Parameters:
@@ -133,15 +158,15 @@ string Wordnum::write_number(int n) {
 
     //storage for strings that need concatenation
     string words[8] = {"", "", "", "", "", "", "", ""};
-    
+
     //variable that tracks how many strings need to be concatenated
     int count = 0;
-    
+
     //variable that tracks the place value of a particular triad
     int place = 1000000000;
-    
+
     //deal with negative numbers here
-    if (n < 0){
+    if (n < 0) {
         words[count] = "negative";
         n *= -1;
         count++;
@@ -150,11 +175,11 @@ string Wordnum::write_number(int n) {
     //Searches billions, millions then thousands for triads in that order
     for (int i = 3; i >= 0; i--) {
 
-        
+
         if (n / place > 0) {
             words[count] = triadToString(n / place);
             count++;
-            if (triads[i] != ""){
+            if (triads[i] != "") {
                 words[count] = triads[i];
                 count++;
             }
@@ -162,7 +187,7 @@ string Wordnum::write_number(int n) {
         n %= place;
         place /= 1000;
     }
-    
+
     //if there are no strings to concatenate, then the value must be zero
     if (count == 0) return "zero";
 
@@ -186,7 +211,7 @@ string Wordnum::triadToString(int n) {
 
     //each word is a digit
     string words[3] = {"", "", ""};
-    
+
     //count is a tracking variable that helps with how many words need to be
     //joined
     int count = 0;
@@ -198,31 +223,35 @@ string Wordnum::triadToString(int n) {
         n = n % 100;
         count++;
     }
-    
+
     //First check if the number is greater than 10
     if (n / 10 == 0) {
         words[count] = units[n];
+        
+        //add and when appropriate
+        if (british && count > 0) words[count].insert(0, "and_");
         count++;
         return join(words + 0, words + count, '_');
-    } 
-    //If it's not greater than 10, then is it between 10 and 20 non-inclusive?
+    }//If it's not greater than 10, then is it between 10 and 20 non-inclusive?
     else if (n > 10 && n < 20) {
         words[count] = teens[n % 10 - 1];
+        if (british && count > 0) words[count].insert(0, "and_");
         count++;
         return join(words + 0, words + count, '_');
-    } 
-    //Then is it 10?
+    }//Then is it 10?
     else if (n == 10) {
         words[count] = decades[0];
+        if (british && count > 0) words[count].insert(0, "and_");
         count++;
         return join(words + 0, words + count, '_');
-    } 
-    //Ok, then it must be strictly greater than 19
+    }//Ok, then it must be strictly greater than 19
     else {
         words[count] = decades[n / 10 - 1];
-        count++;
+        if (british && count > 0) words[count].insert(0, "and_");
         if (n % 10 != 0) {
-            words[count] = units[n % 10];
+            if(british) words[count].append("-");
+            else words[count].append("_");
+            words[count].append(units[n % 10]);
             count++;
         }
 
@@ -233,8 +262,8 @@ string Wordnum::triadToString(int n) {
 }
 
 /**
- * Read_number takes the input string (inString)  and returns the value of the 
- * number as an int total
+ * read_number takes the input string (inString), which may be a British style
+ * string, and returns the value of the number as an int total
  * If the input string is a negative number i.e  ‘negative’ is the first element 
  * in the input string then the total will change sign - be multiplied by -1
  * 
@@ -250,9 +279,21 @@ int Wordnum::read_number(string inString) {
     //cout << "reading number: " << inString << endl;
     int sign = 1;
     int total = 0;
+
+    //prep string to lower case
     for (int i = 0; i < inString.length(); i++) {
         inString[i] = tolower(inString[i]);
     }
+
+    //convert British to normal
+    while (inString.find("_and") != string::npos) {
+        inString.erase(inString.find("_and"), 4);
+    }
+
+    while (inString.find("-") != string::npos) {
+        inString.replace(inString.find("-"), 1, "_");
+    }
+
     string words[10]; // enough for longest text
 
     string* word = split(inString, words, '_'); //calls split function
@@ -309,18 +350,18 @@ int Wordnum::read_number(string inString) {
 }
 
 /* Once the indices that represents a triad are located, getTriad()
-* will convert the words pointed to by the indices into an integer value
-* This function does not return the actual place value of the triad
-* Anything searched through will be erased afterwards, BEWARE
-*
-* Parameters:
-* -words: an array of words
-* -start: index of where to start searching in words
-* -end: index of where to stop the search
-*
-* Returns:
-* An integer value that is equivalent to the triad given.
-*/
+ * will convert the words pointed to by the indices into an integer value
+ * This function does not return the actual place value of the triad
+ * Anything searched through will be erased afterwards, BEWARE
+ *
+ * Parameters:
+ * -words: an array of words
+ * -start: index of where to start searching in words
+ * -end: index of where to stop the search
+ *
+ * Returns:
+ * An integer value that is equivalent to the triad given.
+ */
 int Wordnum::getTriad(string *words, int start, int end) {
     //cout << "getTriad running" << endl;
     int total = 0;

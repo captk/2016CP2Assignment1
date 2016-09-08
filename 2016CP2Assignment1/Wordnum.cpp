@@ -120,28 +120,38 @@ string triads[] = {
 /**
  * Writes number word text
  *
- * n is the value of the number to write
- * returns the text for the number, with '_' between words
+ * Parameters:
+ * -n: integer value of the number to write
+ * 
+ * Returns:
+ * The text for the number, with '_' between words
  */
 
 //go through each triad and convert each one to a string
 
 string Wordnum::write_number(int n) {
 
-    //cout << "write_number running with: " << n << endl;
+    //storage for strings that need concatenation
     string words[8] = {"", "", "", "", "", "", "", ""};
+    
+    //variable that tracks how many strings need to be concatenated
     int count = 0;
+    
+    //variable that tracks the place value of a particular triad
     int place = 1000000000;
+    
+    //deal with negative numbers here
     if (n < 0){
         words[count] = "negative";
         n *= -1;
         count++;
     }
 
+    //Searches billions, millions then thousands for triads in that order
     for (int i = 3; i >= 0; i--) {
-        //cout << "looking for a triad" << endl;
+
+        
         if (n / place > 0) {
-            //cout << "Found a non-zero triad for: " << triads[i] << endl;
             words[count] = triadToString(n / place);
             count++;
             if (triads[i] != ""){
@@ -152,50 +162,66 @@ string Wordnum::write_number(int n) {
         n %= place;
         place /= 1000;
     }
+    
+    //if there are no strings to concatenate, then the value must be zero
     if (count == 0) return "zero";
-    //cout << words[count] << " " << count << endl;
+
     return join(words + 0, words + count, '_');
 
 }
 
-//Aurora's slightly altered int converter
+/**
+ * Function that takes a triad (a three digit int) and returns the equivalent
+ * value in words as a string type. This function has unknown behaviour when
+ * passed ints that are more than three digits.
+ *
+ * Parameters:
+ * -n: a three digit int
+ *
+ * Returns:
+ * String containing words that represent the value of the int
+ */
 
 string Wordnum::triadToString(int n) {
-    //cout << "converting " << n << " into a string" << endl;
+
     //each word is a digit
     string words[3] = {"", "", ""};
+    
+    //count is a tracking variable that helps with how many words need to be
+    //joined
     int count = 0;
 
     //here we deal with hundreds, very annoying, very messy
     if (n / 100 > 0) {
-        //cout << "found hundreds!" << endl;       
         words[0] = units[n / 100] + "_hundred";
         if (n % 100 == 0) return words[0];
         n = n % 100;
         count++;
     }
-
+    
+    //First check if the number is greater than 10
     if (n / 10 == 0) {
-        //cout << "units only" << endl;
         words[count] = units[n];
         count++;
         return join(words + 0, words + count, '_');
-    } else if (n > 10 && n < 20) {
-        //cout << "teens found" << endl;
+    } 
+    //If it's not greater than 10, then is it between 10 and 20 non-inclusive?
+    else if (n > 10 && n < 20) {
         words[count] = teens[n % 10 - 1];
         count++;
         return join(words + 0, words + count, '_');
-    } else if (n == 10) {
-        //cout << "only decades" << endl;
+    } 
+    //Then is it 10?
+    else if (n == 10) {
         words[count] = decades[0];
         count++;
         return join(words + 0, words + count, '_');
-    } else {
-        //cout << "more than nineteen" << endl;
+    } 
+    //Ok, then it must be strictly greater than 19
+    else {
         words[count] = decades[n / 10 - 1];
         count++;
         if (n % 10 != 0) {
-            //cout << "with a unit" << endl;
             words[count] = units[n % 10];
             count++;
         }
@@ -207,10 +233,16 @@ string Wordnum::triadToString(int n) {
 }
 
 /**
- * Reads number word text
+ * Read_number takes the input string (inString)  and returns the value of the 
+ * number as an int total
+ * If the input string is a negative number i.e  ‘negative’ is the first element 
+ * in the input string then the total will change sign - be multiplied by -1
  * 
- * n is the text of the number to read, with '_' between words
- * returns the value of the number
+ * Paramters:
+ * -inString: the text of the number to read, with '_' between words
+ * 
+ * Returns:
+ * An integer value that is equivalent to inString
  */
 
 int Wordnum::read_number(string inString) {
@@ -272,18 +304,23 @@ int Wordnum::read_number(string inString) {
 
     //now to search the rest of the word array for the unit triad
     total += getTriad(words, startIndex, 9);
-    //cout << "word's numerical total: " << total * sign << endl;
     return total * sign;
 
 }
 
-//search for the value of a particular triad in the array, words[]
-//start is the index to start searching from
-//end is the index AFTER the last index that will be searched
-//this function will return the numerical value of the triad
-//this function does not return the actual place value of the triad
-//anything searched through will be erased afterwards, BEWARE
-
+/* Once the indices that represents a triad are located, getTriad()
+* will convert the words pointed to by the indices into an integer value
+* This function does not return the actual place value of the triad
+* Anything searched through will be erased afterwards, BEWARE
+*
+* Parameters:
+* -words: an array of words
+* -start: index of where to start searching in words
+* -end: index of where to stop the search
+*
+* Returns:
+* An integer value that is equivalent to the triad given.
+*/
 int Wordnum::getTriad(string *words, int start, int end) {
     //cout << "getTriad running" << endl;
     int total = 0;

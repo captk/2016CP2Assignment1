@@ -115,8 +115,9 @@ string decades[] = {
 
 //maybe put hundreds somewhere here.
 //string hundreds = "hundred"
+//billion is incorrectly spelt because this assignment does not accept billions
 string triads[] = {
-    "", "thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "hexillion",
+    "", "thousand", "million", "billlion", "trillion", "quadrillion", "quintillion", "hexillion",
     "heptillion", "octillion", "nonillion"
 };
 
@@ -128,7 +129,7 @@ string triads[] = {
  */
 void Wordnum::wordnumBritish() {
     Wordnum::british = true;
-    cout << "Would you like a cup of tea?" << endl;
+    //cout << "Would you like a cup of tea?" << endl;
 }
 
 /**
@@ -139,7 +140,7 @@ void Wordnum::wordnumBritish() {
  */
 void Wordnum::wordnumNormal() {
     Wordnum::british = false;
-    cout << "Out of tea." << endl;
+    //cout << "Out of tea." << endl;
 }
 
 /**
@@ -156,8 +157,11 @@ void Wordnum::wordnumNormal() {
 
 string Wordnum::write_number(int n) {
 
+    //cout << endl << "writing number: " << n << endl;
+    bool isHundreds = false;
+
     //storage for strings that need concatenation
-    string words[8] = {"", "", "", "", "", "", "", ""};
+    string words[16] = {"", "", "", "", "", "", "", "","","","","","","","",""};
 
     //variable that tracks how many strings need to be concatenated
     int count = 0;
@@ -171,13 +175,22 @@ string Wordnum::write_number(int n) {
         n *= -1;
         count++;
     }
-
+    
+    if (n > 100) {
+        //cout << "n is bigger than 100" << endl;
+        isHundreds = true;
+    }
     //Searches billions, millions then thousands for triads in that order
     for (int i = 3; i >= 0; i--) {
 
 
         if (n / place > 0) {
             words[count] = triadToString(n / place);
+            if (isHundreds && n < 100 && british) {
+                words[count].insert(0, "and_");
+                //cout << "inserting and_" << endl;
+            }
+
             count++;
             if (triads[i] != "") {
                 words[count] = triads[i];
@@ -209,6 +222,8 @@ string Wordnum::write_number(int n) {
 
 string Wordnum::triadToString(int n) {
 
+    //cout << endl << "converting to string: " << n << endl;
+
     //each word is a digit
     string words[3] = {"", "", ""};
 
@@ -227,7 +242,7 @@ string Wordnum::triadToString(int n) {
     //First check if the number is greater than 10
     if (n / 10 == 0) {
         words[count] = units[n];
-        
+
         //add and when appropriate
         if (british && count > 0) words[count].insert(0, "and_");
         count++;
@@ -246,14 +261,16 @@ string Wordnum::triadToString(int n) {
         return join(words + 0, words + count, '_');
     }//Ok, then it must be strictly greater than 19
     else {
+
+        //cout << "decades: " << decades[n /10 -1] << endl;
         words[count] = decades[n / 10 - 1];
         if (british && count > 0) words[count].insert(0, "and_");
         if (n % 10 != 0) {
-            if(british) words[count].append("-");
+            if (british) words[count].append("-");
             else words[count].append("_");
             words[count].append(units[n % 10]);
-            count++;
         }
+        count++;
 
         return join(words + 0, words + count, '_');
     }
@@ -294,10 +311,13 @@ int Wordnum::read_number(string inString) {
         inString.replace(inString.find("-"), 1, "_");
     }
 
-    string words[10]; // enough for longest text
+    string words[16]; // enough for longest text
 
     string* word = split(inString, words, '_'); //calls split function
 
+    for (int i = 0; i < 16; i++){
+        //cout << words[i] << endl;
+    }
     //index of a found word
     int startIndex = 0;
 
@@ -308,7 +328,7 @@ int Wordnum::read_number(string inString) {
         startIndex = 1;
     }
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 16; i++) {
         //cout << "searching word " << i  << ": " << words[i] << endl;
 
         //for each word,
@@ -328,7 +348,7 @@ int Wordnum::read_number(string inString) {
 
                 //get the triad value
                 int triadTotal = getTriad(words, startIndex, i);
-
+                //cout << triadTotal << endl;
                 //put the triad in the right place value
                 for (int k = 0; k < j; k++) {
                     triadTotal *= 1000;
@@ -344,7 +364,9 @@ int Wordnum::read_number(string inString) {
     }
 
     //now to search the rest of the word array for the unit triad
-    total += getTriad(words, startIndex, 9);
+    total += getTriad(words, startIndex, 15);
+
+    //cout << "number read was: " << total*sign << endl;
     return total * sign;
 
 }

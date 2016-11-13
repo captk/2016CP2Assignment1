@@ -14,6 +14,8 @@
 using namespace std;
 
 int main(int argc, char** argv) {
+    
+    
     Wordnum n1, n2;
     char op;
     string input1, input2;
@@ -46,7 +48,7 @@ int main(int argc, char** argv) {
                 break;
         }
     }
-    /*test script:
+   /*
     cout << 29+8036 << " = ";
     cout << Wordnum(29) + Wordnum(8036) << endl;
     
@@ -57,6 +59,10 @@ int main(int argc, char** argv) {
     
     cout << 2000089*104 << " = ";
     cout << Wordnum("two_million_eighty_nine") * Wordnum("one_hundred_FOUR") << endl;
-     */
+
+    cout << endl;
+    
+    cout << 20*11 << " = ";
+    cout << Wordnum("twenty") * Wordnum("eleven") << endl;*/
     return 0;
 }
